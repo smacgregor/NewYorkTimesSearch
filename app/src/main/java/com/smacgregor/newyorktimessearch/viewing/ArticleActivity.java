@@ -13,12 +13,14 @@ import android.webkit.WebViewClient;
 import com.smacgregor.newyorktimessearch.R;
 import com.smacgregor.newyorktimessearch.core.Article;
 
+import org.parceler.Parcels;
+
 import butterknife.Bind;
 import butterknife.ButterKnife;
 
 public class ArticleActivity extends AppCompatActivity {
 
-    private static final String EXTRA_ARTICLE_URL = "com.smacgregor.newyorktimessearch.viewing.article_url";
+    private static final String EXTRA_ARTICLE = "com.smacgregor.newyorktimessearch.viewing.article";
 
     @Bind(R.id.web_full_article) WebView mWebView;
 
@@ -32,12 +34,13 @@ public class ArticleActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
 
         setupWebView();
-        loadWebView(getIntent().getStringExtra(ArticleActivity.EXTRA_ARTICLE_URL));
+        Article article = (Article) Parcels.unwrap(getIntent().getParcelableExtra(ArticleActivity.EXTRA_ARTICLE));
+        loadWebView(article.getWebUrl());
     }
 
     public static Intent getStartIntent(Context context, Article article) {
         Intent startIntent = new Intent(context, ArticleActivity.class);
-        startIntent.putExtra(ArticleActivity.EXTRA_ARTICLE_URL, article.getWebUrl());
+        startIntent.putExtra(ArticleActivity.EXTRA_ARTICLE, Parcels.wrap(article));
         return startIntent;
     }
 
