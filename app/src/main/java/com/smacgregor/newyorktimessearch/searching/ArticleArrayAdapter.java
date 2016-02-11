@@ -1,4 +1,4 @@
-package com.smacgregor.newyorktimessearch.search;
+package com.smacgregor.newyorktimessearch.searching;
 
 import android.content.Context;
 import android.text.TextUtils;

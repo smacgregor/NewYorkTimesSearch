@@ -1,5 +1,6 @@
-package com.smacgregor.newyorktimessearch.search;
+package com.smacgregor.newyorktimessearch.searching;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
@@ -7,6 +8,7 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.GridView;
@@ -17,6 +19,7 @@ import com.loopj.android.http.TextHttpResponseHandler;
 import com.smacgregor.newyorktimessearch.R;
 import com.smacgregor.newyorktimessearch.core.Article;
 import com.smacgregor.newyorktimessearch.core.ArticlesResponse;
+import com.smacgregor.newyorktimessearch.viewing.ArticleActivity;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -25,7 +28,7 @@ import butterknife.Bind;
 import butterknife.ButterKnife;
 import cz.msebera.android.httpclient.Header;
 
-public class SearchActivity extends AppCompatActivity {
+public class SearchActivity extends AppCompatActivity implements AdapterView.OnItemClickListener {
 
     static private final String SEARCH_URL = "http://api.nytimes.com/svc/search/v2/articlesearch.json";
     static private final String SEARCH_KEY = "d77315d3b498a2c803a42418329c43f6:19:74340491";
@@ -46,6 +49,7 @@ public class SearchActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
         mArticles = new ArrayList<>();
         mArticleArrayAdapter = new ArticleArrayAdapter(this, mArticles);
+        searchResultsView.setOnItemClickListener(this);
         searchResultsView.setAdapter(mArticleArrayAdapter);
     }
 
@@ -99,5 +103,12 @@ public class SearchActivity extends AppCompatActivity {
                 }
             }
         });
+    }
+
+    @Override
+    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+        Article article = mArticleArrayAdapter.getItem(position);
+        Intent intent = ArticleActivity.getStartIntent(this, article);
+        startActivity(intent);
     }
 }
