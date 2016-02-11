@@ -2,6 +2,8 @@ package com.smacgregor.newyorktimessearch.core;
 
 import com.google.gson.annotations.SerializedName;
 
+import org.parceler.Parcel;
+
 import java.net.URISyntaxException;
 import java.util.List;
 
@@ -10,17 +12,17 @@ import cz.msebera.android.httpclient.client.utils.URIBuilder;
 /**
  * Created by smacgregor on 2/9/16.
  */
+@Parcel
 public class Article {
 
-    private Headline headline;
-
-    private String webUrl;
+    Headline headline;
+    String webUrl;
 
     @SerializedName("multimedia")
-    private List<Thumbnail> thumbnails;
+    List<Thumbnail> thumbnails;
 
     @SerializedName("abstract")
-    private String shortSummary;
+    String shortSummary;
 
     public String getWebUrl() {
         // The NY Times API returns non mobile article urls.
@@ -41,9 +43,10 @@ public class Article {
         return (thumbnails != null && thumbnails.size() > 0) ? thumbnails.get(0) : null;
     }
 
-    private class Headline {
+    @Parcel
+    public static class Headline {
 
-        private String main;
+        String main;
 
         public String getMain() {
             return main;

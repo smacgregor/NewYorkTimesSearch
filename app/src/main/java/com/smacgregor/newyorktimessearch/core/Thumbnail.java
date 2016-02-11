@@ -2,15 +2,18 @@ package com.smacgregor.newyorktimessearch.core;
 
 import android.text.TextUtils;
 
+import org.parceler.Parcel;
+
 /**
  * Created by smacgregor on 2/9/16.
  */
+@Parcel
 public class Thumbnail {
 
-    private String url;
-    private String type;
-    private int width;
-    private int height;
+    String url;
+    String type;
+    int width;
+    int height;
 
     public String getUrl() {
         // TODO - find a better way to construct the thumbnail url
