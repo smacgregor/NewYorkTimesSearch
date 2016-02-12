@@ -1,7 +1,9 @@
 package com.smacgregor.newyorktimessearch.searching;
 
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
+import android.support.v4.app.FragmentManager;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.SearchView;
@@ -28,7 +30,11 @@ import butterknife.Bind;
 import butterknife.ButterKnife;
 import cz.msebera.android.httpclient.Header;
 
-public class SearchActivity extends AppCompatActivity implements AdapterView.OnItemClickListener, SearchView.OnQueryTextListener {
+public class SearchActivity extends AppCompatActivity implements
+        AdapterView.OnItemClickListener,
+        SearchView.OnQueryTextListener,
+        SearchFilterDialog.OnFragmentInteractionListener
+{
 
     @Bind(R.id.gridView) GridView searchResultsView;
     SearchView mSearchView;
@@ -72,10 +78,22 @@ public class SearchActivity extends AppCompatActivity implements AdapterView.OnI
 
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
+            showSearchFilterDialog();
             return true;
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public void onFragmentInteraction(Uri uri) {
+
+    }
+
+    private void showSearchFilterDialog() {
+        FragmentManager fragmentManager = getSupportFragmentManager();
+        SearchFilterDialog searchFilterDialog = SearchFilterDialog.newInstance("foo", "cheese");
+        searchFilterDialog.show(fragmentManager, "fragment_search_filter");
     }
 
     private void search(final String searchQuery) {
