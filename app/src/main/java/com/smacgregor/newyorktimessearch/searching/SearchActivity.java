@@ -1,7 +1,7 @@
 package com.smacgregor.newyorktimessearch.searching;
 
+import android.app.DatePickerDialog;
 import android.content.Intent;
-import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.view.MenuItemCompat;
@@ -14,6 +14,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
+import android.widget.DatePicker;
 import android.widget.GridView;
 
 import com.loopj.android.http.TextHttpResponseHandler;
@@ -24,6 +25,7 @@ import com.smacgregor.newyorktimessearch.networking.ArticleProvider;
 import com.smacgregor.newyorktimessearch.viewing.ArticleActivity;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
 
 import butterknife.Bind;
@@ -33,15 +35,18 @@ import cz.msebera.android.httpclient.Header;
 public class SearchActivity extends AppCompatActivity implements
         AdapterView.OnItemClickListener,
         SearchView.OnQueryTextListener,
-        SearchFilterDialog.OnFragmentInteractionListener
+        SearchFilterDialog.OnSearchFilterFragmentInteractionListener,
+        DatePickerDialog.OnDateSetListener
 {
 
     @Bind(R.id.gridView) GridView searchResultsView;
-    SearchView mSearchView;
-
+    private SearchView mSearchView;
+    private SearchFilterDialog mSearchFilterDialogFragment;
     private List<Article> mArticles;
     private ArticleArrayAdapter mArticleArrayAdapter;
     private ArticleProvider mArticleProvider;
+
+    private SearchFilter mSearchFilter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -50,6 +55,8 @@ public class SearchActivity extends AppCompatActivity implements
         ButterKnife.bind(this);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+
+        mSearchFilter = new SearchFilter();
 
         mArticles = new ArrayList<>();
         mArticleArrayAdapter = new ArticleArrayAdapter(this, mArticles);
@@ -86,32 +93,18 @@ public class SearchActivity extends AppCompatActivity implements
     }
 
     @Override
-    public void onFragmentInteraction(Uri uri) {
-
+    public void onFinishedSavingSearchFilter(SearchFilter searchFilter) {
+        mSearchFilter = searchFilter;
+        // redo the search if the filter changed
     }
 
-    private void showSearchFilterDialog() {
-        FragmentManager fragmentManager = getSupportFragmentManager();
-        SearchFilterDialog searchFilterDialog = SearchFilterDialog.newInstance("foo", "cheese");
-        searchFilterDialog.show(fragmentManager, "fragment_search_filter");
-    }
-
-    private void search(final String searchQuery) {
-        mArticleProvider.getArticles(searchQuery, new TextHttpResponseHandler() {
-            @Override
-            public void onFailure(int statusCode, Header[] headers, String responseString, Throwable throwable) {
-                Log.d("DEBUG", responseString);
-            }
-
-            @Override
-            public void onSuccess(int statusCode, Header[] headers, String responseString) {
-                Log.d("DEBUG", responseString);
-                ArticlesResponse articleResponse = ArticlesResponse.parseJSON(responseString);
-                if (articleResponse != null) {
-                    mArticleArrayAdapter.addAll(articleResponse.getArticles());
-                }
-            }
-        });
+    @Override
+    public void onDateSet(DatePicker view, int year, int monthOfYear, int dayOfMonth) {
+        final Calendar date = Calendar.getInstance();
+        date.set(year, monthOfYear, dayOfMonth);
+        if (mSearchFilterDialogFragment != null) {
+            mSearchFilterDialogFragment.updateDate(date);
+        }
     }
 
     @Override
@@ -133,5 +126,29 @@ public class SearchActivity extends AppCompatActivity implements
     @Override
     public boolean onQueryTextChange(String newText) {
         return false;
+    }
+
+    private void showSearchFilterDialog() {
+        FragmentManager fragmentManager = getSupportFragmentManager();
+        mSearchFilterDialogFragment = SearchFilterDialog.newInstance(mSearchFilter);
+        mSearchFilterDialogFragment.show(fragmentManager, "fragment_search_filter");
+    }
+
+    private void search(final String searchQuery) {
+        mArticleProvider.getArticles(searchQuery, new TextHttpResponseHandler() {
+            @Override
+            public void onFailure(int statusCode, Header[] headers, String responseString, Throwable throwable) {
+                Log.d("DEBUG", responseString);
+            }
+
+            @Override
+            public void onSuccess(int statusCode, Header[] headers, String responseString) {
+                Log.d("DEBUG", responseString);
+                ArticlesResponse articleResponse = ArticlesResponse.parseJSON(responseString);
+                if (articleResponse != null) {
+                    mArticleArrayAdapter.addAll(articleResponse.getArticles());
+                }
+            }
+        });
     }
 }

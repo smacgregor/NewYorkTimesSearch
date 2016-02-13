@@ -25,18 +25,39 @@ public class SearchFilter {
     }
 
     SortOrder mSortOrder;
-    Calendar mBeginDate;
+    Calendar mStartDate;
     EnumSet<NewsDesks> mNewsDesks;
 
-    public Calendar getmBeginDate() {
-        return mBeginDate;
+    public SearchFilter() {
+        mNewsDesks = EnumSet.noneOf(NewsDesks.class);
     }
 
-    public EnumSet<NewsDesks> getmNewsDesks() {
-        return mNewsDesks;
+    public Calendar getStartDate() {
+        return mStartDate;
+    }
+
+    public void setStartDate(Calendar mStartDate) {
+        this.mStartDate = mStartDate;
+    }
+
+    public void updateNewsDesk(NewsDesks newsDesk, boolean add) {
+        if (add) {
+            mNewsDesks.add(newsDesk);
+        } else {
+            mNewsDesks.remove(newsDesk);
+        }
+    }
+
+    public boolean isNewsDeskEnabled(NewsDesks newsDesk) {
+        return mNewsDesks.contains(newsDesk);
     }
 
     public SortOrder getSortOrder() {
         return mSortOrder;
     }
+
+    public void setSortOrder(SortOrder mSortOrder) {
+        this.mSortOrder = mSortOrder;
+    }
+
 }

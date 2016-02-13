@@ -4,11 +4,11 @@
     <string name="search_query_hint">Search</string>
     <string name="title_activity_article">ArticleActivity</string>
 
-    <string name="text_news_desk_label">News Desks</string>
-    <string name="checkbox_news_desk_sports">Sports</string>
-    <string name="checkbox_news_desk_fashion"><![CDATA[Fashion & Style]]></string>
-    <string name="checkbox_news_desk_arts">Arts</string>
-    <string name="button_search_filter_save">Save</string>
-    <string name="text_begin_date_label">Start Date</string>
-    <string name="text_sort_order_label">Sort order</string>
+    <string name="filter_newsdesks">News Desks</string>
+    <string name="filter_newsdesk_sports">Sports</string>
+    <string name="filter_newsdesk_fashion"><![CDATA[Fashion & Style]]></string>
+    <string name="filter_newsdesk_arts">Arts</string>
+    <string name="filter_save">Save</string>
+    <string name="filter_begin_date">Start Date</string>
+    <string name="filter_sortorder">Sort order</string>
 </resources>
