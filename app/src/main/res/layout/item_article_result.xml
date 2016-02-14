@@ -17,5 +17,6 @@
         android:maxLines="2"
         android:ellipsize="end"
         android:gravity="center"
+        android:padding="8dp"
         android:id="@+id/text_headline" />
 </LinearLayout>
