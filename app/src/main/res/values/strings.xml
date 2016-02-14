@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">NewYorkTimesSearch</string>
+    <string name="app_name">News Reader</string>
     <string name="action_settings">Filters</string>
     <string name="search_query_hint">Search</string>
     <string name="title_activity_article">ArticleActivity</string>

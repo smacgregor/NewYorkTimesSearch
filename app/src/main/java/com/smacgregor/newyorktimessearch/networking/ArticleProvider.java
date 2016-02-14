@@ -24,15 +24,38 @@ public class ArticleProvider {
         this.httpClient = new AsyncHttpClient();
     }
 
-    public void getArticles(final String searchQuery, final SearchFilter searchFilter, TextHttpResponseHandler handler) {
-        RequestParams params = buildRequestParams(searchQuery, searchFilter);
+    /**
+     * Fetch another page of articles for an existing search.
+     * @param searchQuery
+     * @param searchFilter
+     * @param pageNumber
+     * @param handler
+     */
+    public void fetchMoreArticlesForSearch(final String searchQuery, final SearchFilter searchFilter, final int pageNumber, TextHttpResponseHandler handler) {
+        getArticles(searchQuery, searchFilter, pageNumber, handler);
+    }
+
+    /**
+     * Search for articles matching searchQuery and searchFilter
+     * @param searchQuery
+     * @param searchFilter
+     * @param handler
+     */
+    public void searchForArticles(final String searchQuery, final SearchFilter searchFilter, TextHttpResponseHandler handler) {
+        // fetch the first page of results
+        getArticles(searchQuery, searchFilter, 0, handler);
+    }
+
+    private void getArticles(final String searchQuery, final SearchFilter searchFilter, final int pageNumber, TextHttpResponseHandler handler) {
+        RequestParams params = buildRequestParams(searchQuery, searchFilter, pageNumber);
         httpClient.get(SEARCH_URL, params, handler);
     }
 
-    private RequestParams buildRequestParams(final String searchQuery, final SearchFilter searchFilter) {
-        RequestParams params = new RequestParams();        params.put("q", searchQuery);
+    private RequestParams buildRequestParams(final String searchQuery, final SearchFilter searchFilter, int pageNumber) {
+        RequestParams params = new RequestParams();
+        params.put("q", searchQuery);
         params.put("api-key", SEARCH_KEY);
-        params.put("page", 0);
+        params.put("page", pageNumber);
 
         final String encodedStartDate = encodedStartDate(searchFilter.getStartDate());
         if (!TextUtils.isEmpty(encodedStartDate)) {
