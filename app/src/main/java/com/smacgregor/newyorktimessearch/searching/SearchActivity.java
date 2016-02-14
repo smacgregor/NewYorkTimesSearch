@@ -6,9 +6,9 @@ import android.os.Bundle;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.SearchView;
+import android.support.v7.widget.StaggeredGridLayoutManager;
 import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
 import android.util.Log;
@@ -140,9 +140,9 @@ public class SearchActivity extends AppCompatActivity implements
     private void setupSearchResultsView() {
         mArticlesAdapter = new ArticlesAdapter(mArticles);
         searchResultsView.setAdapter(mArticlesAdapter);
-        LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this);
-        searchResultsView.setLayoutManager(linearLayoutManager);
-        searchResultsView.addOnScrollListener(new EndlessRecyclerViewScrollListener(linearLayoutManager) {
+        StaggeredGridLayoutManager staggeredGridLayoutManager = new StaggeredGridLayoutManager(2, StaggeredGridLayoutManager.VERTICAL);
+        searchResultsView.setLayoutManager(staggeredGridLayoutManager);
+        searchResultsView.addOnScrollListener(new EndlessRecyclerViewScrollListener(staggeredGridLayoutManager) {
             @Override
             public void onLoadMore(int page, int totalItemsCount) {
                 loadMoreSearchResults(page);
