@@ -1,8 +1,14 @@
 package com.smacgregor.newyorktimessearch.networking;
 
+import android.text.TextUtils;
+
 import com.loopj.android.http.AsyncHttpClient;
 import com.loopj.android.http.RequestParams;
 import com.loopj.android.http.TextHttpResponseHandler;
+import com.smacgregor.newyorktimessearch.searching.SearchFilter;
+
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
 
 /**
  * Created by smacgregor on 2/10/16.
@@ -18,14 +24,62 @@ public class ArticleProvider {
         this.httpClient = new AsyncHttpClient();
     }
 
-    public void getArticles(final String searchQuery, TextHttpResponseHandler handler) {
-        RequestParams params = new RequestParams();
-        // TODO are we handling spaces correctly - do we need to escape searchQuery?
-        params.put("q", searchQuery);
-        params.put("api-key", SEARCH_KEY);
-        params.put("page", 0);
+    public void getArticles(final String searchQuery, final SearchFilter searchFilter, TextHttpResponseHandler handler) {
+        RequestParams params = buildRequestParams(searchQuery, searchFilter);
         httpClient.get(SEARCH_URL, params, handler);
     }
 
+    private RequestParams buildRequestParams(final String searchQuery, final SearchFilter searchFilter) {
+        RequestParams params = new RequestParams();        params.put("q", searchQuery);
+        params.put("api-key", SEARCH_KEY);
+        params.put("page", 0);
 
+        final String encodedStartDate = encodedStartDate(searchFilter.getStartDate());
+        if (!TextUtils.isEmpty(encodedStartDate)) {
+            params.put("begin_date", encodedStartDate);
+        }
+
+        final String encodedDesks = encodeNewsDesks(searchFilter);
+        if (!TextUtils.isEmpty(encodedDesks)) {
+            params.put("fq", encodedDesks);
+        }
+
+        final String encodedSortOrder = encodeSortOrder(searchFilter.getSortOrder());
+        if (!TextUtils.isEmpty(encodedSortOrder)) {
+            params.put("sort", encodedSortOrder);
+        }
+
+        return params;
+    }
+
+    private final String encodeSortOrder(SearchFilter.SortOrder sortOrder) {
+        if (sortOrder != SearchFilter.SortOrder.RELEVANCE) {
+            return sortOrder == SearchFilter.SortOrder.ASCENDING ? "oldest" : "newest";
+        } else {
+            return null;
+        }
+    }
+
+    private final String encodedStartDate(final Calendar calendar) {
+        String encodedDate = null;
+        if (calendar != null) {
+            SimpleDateFormat dateFormat = new SimpleDateFormat("yyyyMMdd");
+            encodedDate = dateFormat.format(calendar.getTime());
+        }
+        return encodedDate;
+    }
+
+    private final String encodeNewsDesks(final SearchFilter searchFilter) {
+        String desks = new String();
+        for (SearchFilter.NewsDesks newsDesk : SearchFilter.NewsDesks.values()) {
+            if (searchFilter.isNewsDeskEnabled(newsDesk)) {
+                desks += newsDesk.toString() + " ";
+            }
+        }
+
+        if (!TextUtils.isEmpty(desks)) {
+            desks = String.format("news_desk:(%s)", desks);
+        }
+        return desks;
+    }
 }
