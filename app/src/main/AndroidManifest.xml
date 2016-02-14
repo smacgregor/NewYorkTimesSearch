@@ -24,6 +24,8 @@
             android:name=".viewing.ArticleActivity"
             android:label="@string/title_activity_article"
             android:theme="@style/AppTheme.NoActionBar"></activity>
+        <meta-data android:name="com.smacgregor.newyorktimessearch.core.imagehandling.GlideConfiguration"
+            android:value="GlideModule"/>
     </application>
 
 </manifest>
