@@ -1,28 +1,26 @@
 package com.smacgregor.newyorktimessearch.searching;
 
 import android.app.DatePickerDialog;
-import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.SearchView;
 import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
-import android.widget.AdapterView;
 import android.widget.DatePicker;
-import android.widget.GridView;
 
 import com.loopj.android.http.TextHttpResponseHandler;
 import com.smacgregor.newyorktimessearch.R;
 import com.smacgregor.newyorktimessearch.core.Article;
 import com.smacgregor.newyorktimessearch.core.ArticlesResponse;
+import com.smacgregor.newyorktimessearch.core.ui.EndlessRecyclerViewScrollListener;
 import com.smacgregor.newyorktimessearch.networking.ArticleProvider;
-import com.smacgregor.newyorktimessearch.viewing.ArticleActivity;
 
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -33,17 +31,15 @@ import butterknife.ButterKnife;
 import cz.msebera.android.httpclient.Header;
 
 public class SearchActivity extends AppCompatActivity implements
-        AdapterView.OnItemClickListener,
         SearchView.OnQueryTextListener,
         SearchFilterDialog.OnSearchFilterFragmentInteractionListener,
-        DatePickerDialog.OnDateSetListener
-{
+        DatePickerDialog.OnDateSetListener {
 
-    @Bind(R.id.gridView) GridView searchResultsView;
+    @Bind(R.id.recycler_articles) RecyclerView searchResultsView;
     private SearchView mSearchView;
     private SearchFilterDialog mSearchFilterDialogFragment;
     private List<Article> mArticles;
-    private ArticleArrayAdapter mArticleArrayAdapter;
+    private ArticlesAdapter mArticlesAdapter;
     private ArticleProvider mArticleProvider;
 
     private SearchFilter mSearchFilter;
@@ -60,11 +56,9 @@ public class SearchActivity extends AppCompatActivity implements
         mSearchFilter = new SearchFilter();
 
         mArticles = new ArrayList<>();
-        mArticleArrayAdapter = new ArticleArrayAdapter(this, mArticles);
         mArticleProvider = new ArticleProvider();
 
-        searchResultsView.setOnItemClickListener(this);
-        searchResultsView.setAdapter(mArticleArrayAdapter);
+        setupSearchResultsView();
     }
 
     @Override
@@ -110,13 +104,14 @@ public class SearchActivity extends AppCompatActivity implements
         }
     }
 
+    /*
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-        Article article = mArticleArrayAdapter.getItem(position);
+        Article article = mArticlesAdapter.getItem(position);
         Intent intent = ArticleActivity.getStartIntent(this, article);
         startActivity(intent);
     }
-
+*/
     @Override
     public boolean onQueryTextSubmit(String query) {
         mSearchView.clearFocus();
@@ -128,9 +123,24 @@ public class SearchActivity extends AppCompatActivity implements
     @Override
     public boolean onQueryTextChange(String newText) {
         if (TextUtils.isEmpty(newText)) {
-            mArticleArrayAdapter.clear();
+            mArticles.clear();
+            mArticlesAdapter.notifyDataSetChanged();
         }
         return false;
+    }
+
+    private void setupSearchResultsView() {
+        mArticlesAdapter = new ArticlesAdapter(mArticles);
+        searchResultsView.setAdapter(mArticlesAdapter);
+        LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this);
+        searchResultsView.setLayoutManager(linearLayoutManager);
+        searchResultsView.addOnScrollListener(new EndlessRecyclerViewScrollListener(linearLayoutManager) {
+            @Override
+            public void onLoadMore(int page, int totalItemsCount) {
+                loadMoreSearchResults(page);
+            }
+        });
+        //searchResultsView.setOnItemClickListener(this);
     }
 
     private void showSearchFilterDialog() {
@@ -139,10 +149,33 @@ public class SearchActivity extends AppCompatActivity implements
         mSearchFilterDialogFragment.show(fragmentManager, "fragment_search_filter");
     }
 
+    private void loadMoreSearchResults(int page) {
+        mArticleProvider.fetchMoreArticlesForSearch(mSearchQuery, mSearchFilter, page, new TextHttpResponseHandler() {
+            @Override
+            public void onFailure(int statusCode, Header[] headers, String responseString, Throwable throwable) {
+                // TODO - fire a toast with the warning message
+                Log.d("DEBUG", responseString);
+            }
+
+            @Override
+            public void onSuccess(int statusCode, Header[] headers, String responseString) {
+                Log.d("DEBUG", responseString);
+                ArticlesResponse articleResponse = ArticlesResponse.parseJSON(responseString);
+                if (articleResponse != null) {
+                    mArticles.addAll(articleResponse.getArticles());
+                    // shouldn't mArticles.size() - 1 be the size of the array of articles we added to mArticles?
+                    mArticlesAdapter.notifyItemRangeInserted(mArticlesAdapter.getItemCount(), mArticles.size() - 1);
+                }
+            }
+        });
+    }
+
     private void search(final String searchQuery) {
-        mArticleArrayAdapter.clear();
+        // TODO - add a progress spinner
+        mArticles.clear();
+        mArticlesAdapter.notifyDataSetChanged();
         if (!TextUtils.isEmpty(searchQuery)) {
-            mArticleProvider.getArticles(searchQuery, mSearchFilter, new TextHttpResponseHandler() {
+            mArticleProvider.searchForArticles(searchQuery, mSearchFilter, new TextHttpResponseHandler() {
                 @Override
                 public void onFailure(int statusCode, Header[] headers, String responseString, Throwable throwable) {
                     Log.d("DEBUG", responseString);
@@ -153,7 +186,8 @@ public class SearchActivity extends AppCompatActivity implements
                     Log.d("DEBUG", responseString);
                     ArticlesResponse articleResponse = ArticlesResponse.parseJSON(responseString);
                     if (articleResponse != null) {
-                        mArticleArrayAdapter.addAll(articleResponse.getArticles());
+                        mArticles.addAll(articleResponse.getArticles());
+                        mArticlesAdapter.notifyItemRangeInserted(0, mArticles.size() - 1);
                     }
                 }
             });
