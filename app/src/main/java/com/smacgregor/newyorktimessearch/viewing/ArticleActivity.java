@@ -3,9 +3,13 @@ package com.smacgregor.newyorktimessearch.viewing;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.v4.view.MenuItemCompat;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.ShareActionProvider;
 import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
@@ -35,7 +39,21 @@ public class ArticleActivity extends AppCompatActivity {
 
         setupWebView();
         Article article = (Article) Parcels.unwrap(getIntent().getParcelableExtra(ArticleActivity.EXTRA_ARTICLE));
+        setTitle(article.getShortHeadline());
         loadWebView(article.getWebUrl());
+    }
+
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu_article, menu);
+        MenuItem menuItem = menu.findItem(R.id.menu_item_share);
+        ShareActionProvider shareAction = (ShareActionProvider) MenuItemCompat.getActionProvider(menuItem);
+        Intent shareIntent = new Intent(Intent.ACTION_SEND);
+        shareIntent.setType("text/plain");
+        shareIntent.putExtra(Intent.EXTRA_TEXT, mWebView.getUrl());
+        shareAction.setShareIntent(shareIntent);
+        return super.onCreateOptionsMenu(menu);
     }
 
     public static Intent getStartIntent(Context context, Article article) {

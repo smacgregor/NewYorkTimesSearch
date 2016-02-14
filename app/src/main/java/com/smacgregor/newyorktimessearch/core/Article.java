@@ -39,6 +39,10 @@ public class Article {
         return headline != null ? headline.getMain() : null;
     }
 
+    public String getShortHeadline() {
+        return headline != null ? headline.getKicker() : null;
+    }
+
     public List<Thumbnail> getThumbnails() {
         return thumbnails;
     }
@@ -46,8 +50,10 @@ public class Article {
     @Parcel
     public static class Headline {
         String main;
+        String kicker;
         public String getMain() {
             return main;
         }
+        public String getKicker() { return kicker; }
     }
 }

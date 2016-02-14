@@ -12,4 +12,6 @@
     <string name="filter_save">Save</string>
     <string name="filter_begin_date">Start Date</string>
     <string name="filter_sortorder">Sort order</string>
+
+    <string name="menu_share">Share</string>
 </resources>
