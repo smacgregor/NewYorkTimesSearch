@@ -39,15 +39,13 @@ public class Article {
         return headline != null ? headline.getMain() : null;
     }
 
-    public Thumbnail getThumbnail() {
-        return (thumbnails != null && thumbnails.size() > 0) ? thumbnails.get(0) : null;
+    public List<Thumbnail> getThumbnails() {
+        return thumbnails;
     }
 
     @Parcel
     public static class Headline {
-
         String main;
-
         public String getMain() {
             return main;
         }

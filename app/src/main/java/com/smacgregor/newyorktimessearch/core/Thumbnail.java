@@ -11,7 +11,7 @@ import org.parceler.Parcel;
 public class Thumbnail {
 
     String url;
-    String type;
+    String subtype;
     int width;
     int height;
 
@@ -20,8 +20,8 @@ public class Thumbnail {
         return !TextUtils.isEmpty(url) ? "http://www.nytimes.com/" + url : "";
     }
 
-    public String getType() {
-        return type;
+    public String getSubType() {
+        return subtype;
     }
 
     public int getWidth() {
