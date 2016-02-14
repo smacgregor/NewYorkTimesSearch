@@ -141,6 +141,7 @@ public class SearchActivity extends AppCompatActivity implements
         mArticlesAdapter = new ArticlesAdapter(mArticles);
         searchResultsView.setAdapter(mArticlesAdapter);
         StaggeredGridLayoutManager staggeredGridLayoutManager = new StaggeredGridLayoutManager(2, StaggeredGridLayoutManager.VERTICAL);
+        staggeredGridLayoutManager.setGapStrategy(StaggeredGridLayoutManager.GAP_HANDLING_NONE);
         searchResultsView.setLayoutManager(staggeredGridLayoutManager);
         searchResultsView.addOnScrollListener(new EndlessRecyclerViewScrollListener(staggeredGridLayoutManager) {
             @Override
@@ -148,6 +149,7 @@ public class SearchActivity extends AppCompatActivity implements
                 loadMoreSearchResults(page);
             }
         });
+        searchResultsView.addItemDecoration(new ArticleItemDecoration(16));
         mArticlesAdapter.setOnItemClickListener(this);
     }
 

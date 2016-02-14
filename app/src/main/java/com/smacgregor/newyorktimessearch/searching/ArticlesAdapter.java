@@ -5,12 +5,13 @@ import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.smacgregor.newyorktimessearch.R;
 import com.smacgregor.newyorktimessearch.core.Article;
 import com.smacgregor.newyorktimessearch.core.Thumbnail;
+import com.smacgregor.newyorktimessearch.core.ThumbnailHelpers;
+import com.smacgregor.newyorktimessearch.core.ui.DynamicHeightImageView;
 import com.squareup.picasso.Picasso;
 
 import java.util.List;
@@ -43,8 +44,10 @@ public class ArticlesAdapter extends RecyclerView.Adapter<ArticlesAdapter.ViewHo
 
         Article article = mArticles.get(position);
         holder.headline.setText(article.getHeadline());
-        Thumbnail thumbnail = article.getThumbnail();
+
+        Thumbnail thumbnail = ThumbnailHelpers.getBestThumbnailForArticle(article);
         if (thumbnail != null && !TextUtils.isEmpty(thumbnail.getUrl())) {
+            holder.imageThumbnail.setHeightRatio(((double) thumbnail.getHeight())/thumbnail.getWidth());
             Picasso.with(holder.imageThumbnail.getContext()).
                     load(thumbnail.getUrl()).
                     into(holder.imageThumbnail);
@@ -56,13 +59,21 @@ public class ArticlesAdapter extends RecyclerView.Adapter<ArticlesAdapter.ViewHo
         return mArticles.size();
     }
 
+    public interface OnItemClickListener {
+        void onItemClick(View view, int position);
+    }
+
+    public void setOnItemClickListener(final OnItemClickListener clickListener) {
+        mOnItemClickListener = clickListener;
+    }
+
     private void prepareViewForReuse(ViewHolder view) {
         view.imageThumbnail.setImageResource(0);
         view.headline.setText("");
     }
 
     public class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
-        @Bind(R.id.image_thumbnail) ImageView imageThumbnail;
+        @Bind(R.id.image_thumbnail) DynamicHeightImageView imageThumbnail;
         @Bind(R.id.text_headline) TextView headline;
 
         public ViewHolder(View itemView) {
@@ -77,13 +88,5 @@ public class ArticlesAdapter extends RecyclerView.Adapter<ArticlesAdapter.ViewHo
                 mOnItemClickListener.onItemClick(v, getAdapterPosition());
             }
         }
-    }
-
-    public interface OnItemClickListener {
-        public void onItemClick(View view, int position);
-    }
-
-    public void setOnItemClickListener(final OnItemClickListener clickListener) {
-        mOnItemClickListener = clickListener;
     }
 }
