@@ -47,6 +47,7 @@ public class SearchActivity extends AppCompatActivity implements
     private ArticleProvider mArticleProvider;
 
     private SearchFilter mSearchFilter;
+    private String mSearchQuery;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -96,6 +97,8 @@ public class SearchActivity extends AppCompatActivity implements
     public void onFinishedSavingSearchFilter(SearchFilter searchFilter) {
         mSearchFilter = searchFilter;
         // redo the search if the filter changed
+        // add an equality check to searchFilter
+        search(mSearchQuery);
     }
 
     @Override
@@ -117,14 +120,16 @@ public class SearchActivity extends AppCompatActivity implements
     @Override
     public boolean onQueryTextSubmit(String query) {
         mSearchView.clearFocus();
-        if (!TextUtils.isEmpty(query)) {
-            search(query);
-        }
+        mSearchQuery = query;
+        search(mSearchQuery);
         return true;
     }
 
     @Override
     public boolean onQueryTextChange(String newText) {
+        if (TextUtils.isEmpty(newText)) {
+            mArticleArrayAdapter.clear();
+        }
         return false;
     }
 
@@ -135,20 +140,23 @@ public class SearchActivity extends AppCompatActivity implements
     }
 
     private void search(final String searchQuery) {
-        mArticleProvider.getArticles(searchQuery, new TextHttpResponseHandler() {
-            @Override
-            public void onFailure(int statusCode, Header[] headers, String responseString, Throwable throwable) {
-                Log.d("DEBUG", responseString);
-            }
-
-            @Override
-            public void onSuccess(int statusCode, Header[] headers, String responseString) {
-                Log.d("DEBUG", responseString);
-                ArticlesResponse articleResponse = ArticlesResponse.parseJSON(responseString);
-                if (articleResponse != null) {
-                    mArticleArrayAdapter.addAll(articleResponse.getArticles());
+        mArticleArrayAdapter.clear();
+        if (!TextUtils.isEmpty(searchQuery)) {
+            mArticleProvider.getArticles(searchQuery, mSearchFilter, new TextHttpResponseHandler() {
+                @Override
+                public void onFailure(int statusCode, Header[] headers, String responseString, Throwable throwable) {
+                    Log.d("DEBUG", responseString);
                 }
-            }
-        });
+
+                @Override
+                public void onSuccess(int statusCode, Header[] headers, String responseString) {
+                    Log.d("DEBUG", responseString);
+                    ArticlesResponse articleResponse = ArticlesResponse.parseJSON(responseString);
+                    if (articleResponse != null) {
+                        mArticleArrayAdapter.addAll(articleResponse.getArticles());
+                    }
+                }
+            });
+        }
     }
 }

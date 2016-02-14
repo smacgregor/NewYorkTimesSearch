@@ -8,9 +8,11 @@ import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.EditText;
+import android.widget.Spinner;
 
 import com.smacgregor.newyorktimessearch.R;
 
@@ -23,6 +25,7 @@ import butterknife.Bind;
 import butterknife.ButterKnife;
 import butterknife.OnCheckedChanged;
 import butterknife.OnClick;
+import butterknife.OnItemSelected;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -32,14 +35,17 @@ import butterknife.OnClick;
  * Use the {@link SearchFilterDialog#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class SearchFilterDialog extends DialogFragment {
+public class SearchFilterDialog extends DialogFragment implements Spinner.OnItemSelectedListener {
 
     private static final String ARGUMENT_SEARCH_FILTER = "ARGUMENT_SEARCH_FILTER";
 
     @Bind(R.id.checkbox_arts) CheckBox mArtsCheckbox;
     @Bind(R.id.checkbox_fashion) CheckBox mFashion;
     @Bind(R.id.checkbox_sports) CheckBox mSports;
+    @Bind(R.id.checkbox_foreign) CheckBox mForeign;
     @Bind(R.id.edit_start_date) EditText mStartDateTextField;
+    @Bind(R.id.spinner_sort_order) Spinner mStartDateSpinner;
+
     SearchFilter mSearchFilter;
 
     private OnSearchFilterFragmentInteractionListener mListener;
@@ -81,6 +87,8 @@ public class SearchFilterDialog extends DialogFragment {
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         ButterKnife.bind(this, view);
+
+        updateSortOrderSpinner();
         updateStartDateTextView(mSearchFilter.getStartDate());
         updateNewsDesks();
     }
@@ -108,6 +116,15 @@ public class SearchFilterDialog extends DialogFragment {
         ButterKnife.unbind(this);
     }
 
+    @Override
+    @OnItemSelected(R.id.spinner_sort_order)
+    public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+        mSearchFilter.setSortOrder(SearchFilter.SortOrder.fromInt(position));
+    }
+
+    @Override
+    public void onNothingSelected(AdapterView<?> parent) {}
+
     /**
      * Update the dialog fragment with the new date
      * @param date
@@ -130,6 +147,9 @@ public class SearchFilterDialog extends DialogFragment {
             case R.id.checkbox_arts:
                 newsDeskToUpdate = SearchFilter.NewsDesks.ARTS;
                 break;
+            case R.id.checkbox_foreign:
+                newsDeskToUpdate = SearchFilter.NewsDesks.FOREIGN;
+                break;
         }
         mSearchFilter.updateNewsDesk(newsDeskToUpdate, checked);
     }
@@ -150,6 +170,10 @@ public class SearchFilterDialog extends DialogFragment {
         dismiss();
     }
 
+    private void updateSortOrderSpinner() {
+        mStartDateSpinner.setSelection(mSearchFilter.getSortOrder().toInt());
+    }
+
     /**
      * Set the checked property for our news desks to the correct values
      */
@@ -157,6 +181,7 @@ public class SearchFilterDialog extends DialogFragment {
         mArtsCheckbox.setChecked(mSearchFilter.isNewsDeskEnabled(SearchFilter.NewsDesks.ARTS));
         mFashion.setChecked(mSearchFilter.isNewsDeskEnabled(SearchFilter.NewsDesks.FASHION_AND_STYLE));
         mSports.setChecked(mSearchFilter.isNewsDeskEnabled(SearchFilter.NewsDesks.SPORTS));
+        mForeign.setChecked(mSearchFilter.isNewsDeskEnabled(SearchFilter.NewsDesks.FOREIGN));
     }
 
     private void updateStartDateTextView(Calendar date) {

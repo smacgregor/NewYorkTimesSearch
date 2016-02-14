@@ -15,7 +15,7 @@
         android:layout_weight="0.29"
         android:useDefaultMargins="true"
         android:columnCount="2"
-        android:rowCount="5">
+        android:rowCount="6">
 
 
         <TextView
@@ -82,6 +82,15 @@
             android:text="@string/filter_newsdesk_arts"
             android:id="@+id/checkbox_arts"
             android:layout_row="4"
+            android:layout_column="1"
+            android:checked="false" />
+
+        <CheckBox
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/filter_newsdesk_foreign"
+            android:id="@+id/checkbox_foreign"
+            android:layout_row="5"
             android:layout_column="1"
             android:checked="false" />
     </GridLayout>

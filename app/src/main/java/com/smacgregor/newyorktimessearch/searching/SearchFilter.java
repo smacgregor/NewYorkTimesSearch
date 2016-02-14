@@ -13,15 +13,46 @@ import java.util.EnumSet;
 
 @Parcel
 public class SearchFilter {
+
     public enum SortOrder {
-        DESCENDING,
-        ASCENDING
+        RELEVANCE (0),
+        DESCENDING (1),
+        ASCENDING (2);
+
+        private final int mValue;
+
+        public static SortOrder fromInt(int value) {
+            for (SortOrder sortOrder: SortOrder.values()) {
+                if (value == sortOrder.toInt()) {
+                    return sortOrder;
+                }
+            }
+            return null;
+        }
+
+        SortOrder(int value) {
+            mValue = value;
+        }
+
+        public int toInt() {
+            return mValue;
+        }
     }
 
     public enum NewsDesks {
-        ARTS,
-        FASHION_AND_STYLE,
-        SPORTS
+        ARTS ("Arts"),
+        FASHION_AND_STYLE ("Fashion & Style"),
+        SPORTS ("Sports"),
+        FOREIGN ("Foreign");
+
+        private final String mName;
+
+        NewsDesks(String name) {
+            mName = name;
+        }
+        public String toString() {
+            return this.mName;
+        }
     }
 
     SortOrder mSortOrder;
@@ -30,14 +61,15 @@ public class SearchFilter {
 
     public SearchFilter() {
         mNewsDesks = EnumSet.noneOf(NewsDesks.class);
+        mSortOrder = SortOrder.RELEVANCE;
     }
 
     public Calendar getStartDate() {
         return mStartDate;
     }
 
-    public void setStartDate(Calendar mStartDate) {
-        this.mStartDate = mStartDate;
+    public void setStartDate(Calendar startDate) {
+        this.mStartDate = startDate;
     }
 
     public void updateNewsDesk(NewsDesks newsDesk, boolean add) {
@@ -56,8 +88,7 @@ public class SearchFilter {
         return mSortOrder;
     }
 
-    public void setSortOrder(SortOrder mSortOrder) {
-        this.mSortOrder = mSortOrder;
+    public void setSortOrder(SortOrder sortOrder) {
+        this.mSortOrder = sortOrder;
     }
-
 }
