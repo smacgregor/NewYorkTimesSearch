@@ -7,12 +7,13 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.smacgregor.newyorktimessearch.R;
 import com.smacgregor.newyorktimessearch.core.Article;
 import com.smacgregor.newyorktimessearch.core.Thumbnail;
 import com.smacgregor.newyorktimessearch.core.ThumbnailHelpers;
 import com.smacgregor.newyorktimessearch.core.ui.DynamicHeightImageView;
-import com.squareup.picasso.Picasso;
 
 import java.util.List;
 
@@ -47,9 +48,12 @@ public class ArticlesAdapter extends RecyclerView.Adapter<ArticlesAdapter.ViewHo
 
         Thumbnail thumbnail = ThumbnailHelpers.getBestThumbnailForArticle(article);
         if (thumbnail != null && !TextUtils.isEmpty(thumbnail.getUrl())) {
-            holder.imageThumbnail.setHeightRatio(((double) thumbnail.getHeight())/thumbnail.getWidth());
-            Picasso.with(holder.imageThumbnail.getContext()).
+            holder.imageThumbnail.setHeightRatio(((double) thumbnail.getHeight()) / thumbnail.getWidth());
+            // Setting a disk cache policy to all isn't necessary for this simple example
+            // but good practice.
+            Glide.with(holder.imageThumbnail.getContext()).
                     load(thumbnail.getUrl()).
+                    diskCacheStrategy(DiskCacheStrategy.ALL).
                     into(holder.imageThumbnail);
         }
     }
