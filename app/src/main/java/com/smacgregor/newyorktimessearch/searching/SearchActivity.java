@@ -32,6 +32,7 @@ import java.util.List;
 import butterknife.Bind;
 import butterknife.ButterKnife;
 import cz.msebera.android.httpclient.Header;
+import jp.wasabeef.recyclerview.adapters.SlideInBottomAnimationAdapter;
 
 public class SearchActivity extends AppCompatActivity implements
         SearchView.OnQueryTextListener,
@@ -131,15 +132,15 @@ public class SearchActivity extends AppCompatActivity implements
     @Override
     public boolean onQueryTextChange(String newText) {
         if (TextUtils.isEmpty(newText)) {
+            mArticlesAdapter.notifyItemRangeRemoved(0, mArticles.size());
             mArticles.clear();
-            mArticlesAdapter.notifyDataSetChanged();
         }
         return false;
     }
 
     private void setupSearchResultsView() {
         mArticlesAdapter = new ArticlesAdapter(mArticles);
-        searchResultsView.setAdapter(mArticlesAdapter);
+        searchResultsView.setAdapter(new SlideInBottomAnimationAdapter(mArticlesAdapter));
         StaggeredGridLayoutManager staggeredGridLayoutManager = new StaggeredGridLayoutManager(2, StaggeredGridLayoutManager.VERTICAL);
         staggeredGridLayoutManager.setGapStrategy(StaggeredGridLayoutManager.GAP_HANDLING_NONE);
         searchResultsView.setLayoutManager(staggeredGridLayoutManager);
@@ -182,8 +183,9 @@ public class SearchActivity extends AppCompatActivity implements
 
     private void search(final String searchQuery) {
         // TODO - add a progress spinner
+        int size = mArticles.size();
         mArticles.clear();
-        mArticlesAdapter.notifyDataSetChanged();
+        mArticlesAdapter.notifyItemRangeRemoved(0, size - 1);
         if (!TextUtils.isEmpty(searchQuery)) {
             mArticleProvider.searchForArticles(searchQuery, mSearchFilter, new TextHttpResponseHandler() {
                 @Override
