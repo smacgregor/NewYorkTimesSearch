@@ -23,6 +23,7 @@ import butterknife.ButterKnife;
  */
 public class ArticlesAdapter extends RecyclerView.Adapter<ArticlesAdapter.ViewHolder> {
 
+    OnItemClickListener mOnItemClickListener;
     private List<Article> mArticles;
 
     public ArticlesAdapter(List<Article> articles) {
@@ -60,13 +61,29 @@ public class ArticlesAdapter extends RecyclerView.Adapter<ArticlesAdapter.ViewHo
         view.headline.setText("");
     }
 
-    public static class ViewHolder extends RecyclerView.ViewHolder {
+    public class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
         @Bind(R.id.image_thumbnail) ImageView imageThumbnail;
         @Bind(R.id.text_headline) TextView headline;
 
         public ViewHolder(View itemView) {
             super(itemView);
             ButterKnife.bind(this, itemView);
+            itemView.setOnClickListener(this);
         }
+
+        @Override
+        public void onClick(View v) {
+            if (mOnItemClickListener != null) {
+                mOnItemClickListener.onItemClick(v, getAdapterPosition());
+            }
+        }
+    }
+
+    public interface OnItemClickListener {
+        public void onItemClick(View view, int position);
+    }
+
+    public void setOnItemClickListener(final OnItemClickListener clickListener) {
+        mOnItemClickListener = clickListener;
     }
 }

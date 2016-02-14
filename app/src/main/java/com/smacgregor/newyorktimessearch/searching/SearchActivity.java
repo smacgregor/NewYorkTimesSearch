@@ -1,6 +1,7 @@
 package com.smacgregor.newyorktimessearch.searching;
 
 import android.app.DatePickerDialog;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.view.MenuItemCompat;
@@ -13,6 +14,7 @@ import android.text.TextUtils;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.DatePicker;
 
 import com.loopj.android.http.TextHttpResponseHandler;
@@ -21,6 +23,7 @@ import com.smacgregor.newyorktimessearch.core.Article;
 import com.smacgregor.newyorktimessearch.core.ArticlesResponse;
 import com.smacgregor.newyorktimessearch.core.ui.EndlessRecyclerViewScrollListener;
 import com.smacgregor.newyorktimessearch.networking.ArticleProvider;
+import com.smacgregor.newyorktimessearch.viewing.ArticleActivity;
 
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -33,6 +36,7 @@ import cz.msebera.android.httpclient.Header;
 public class SearchActivity extends AppCompatActivity implements
         SearchView.OnQueryTextListener,
         SearchFilterDialog.OnSearchFilterFragmentInteractionListener,
+        ArticlesAdapter.OnItemClickListener,
         DatePickerDialog.OnDateSetListener {
 
     @Bind(R.id.recycler_articles) RecyclerView searchResultsView;
@@ -95,6 +99,18 @@ public class SearchActivity extends AppCompatActivity implements
         search(mSearchQuery);
     }
 
+    /**
+     * Our recycler list view on item click handler
+     * @param view
+     * @param position
+     */
+    @Override
+    public void onItemClick(View view, int position) {
+        Article article = mArticles.get(position);
+        Intent intent = ArticleActivity.getStartIntent(this, article);
+        startActivity(intent);
+    }
+
     @Override
     public void onDateSet(DatePicker view, int year, int monthOfYear, int dayOfMonth) {
         final Calendar date = Calendar.getInstance();
@@ -104,14 +120,6 @@ public class SearchActivity extends AppCompatActivity implements
         }
     }
 
-    /*
-    @Override
-    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-        Article article = mArticlesAdapter.getItem(position);
-        Intent intent = ArticleActivity.getStartIntent(this, article);
-        startActivity(intent);
-    }
-*/
     @Override
     public boolean onQueryTextSubmit(String query) {
         mSearchView.clearFocus();
@@ -140,7 +148,7 @@ public class SearchActivity extends AppCompatActivity implements
                 loadMoreSearchResults(page);
             }
         });
-        //searchResultsView.setOnItemClickListener(this);
+        mArticlesAdapter.setOnItemClickListener(this);
     }
 
     private void showSearchFilterDialog() {
