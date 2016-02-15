@@ -6,8 +6,8 @@
     android:background="@android:color/white">
 
     <com.smacgregor.newyorktimessearch.core.ui.DynamicHeightImageView
-        android:layout_width="300dp"
-        android:layout_height="75dp"
+        android:layout_width="@dimen/article_thumbnail_width"
+        android:layout_height="@dimen/article_thumbnail_height"
         android:id="@+id/image_thumbnail"
         android:scaleType="centerCrop"/>
 
@@ -17,6 +17,6 @@
         android:maxLines="2"
         android:ellipsize="end"
         android:gravity="center"
-        android:padding="8dp"
+        android:padding="@dimen/article_headline_padding"
         android:id="@+id/text_headline" />
 </LinearLayout>

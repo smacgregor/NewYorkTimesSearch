@@ -16,6 +16,7 @@ import android.webkit.WebViewClient;
 
 import com.smacgregor.newyorktimessearch.R;
 import com.smacgregor.newyorktimessearch.core.Article;
+import com.smacgregor.newyorktimessearch.core.ArticleHelpers;
 
 import org.parceler.Parcels;
 
@@ -40,9 +41,8 @@ public class ArticleActivity extends AppCompatActivity {
         setupWebView();
         Article article = (Article) Parcels.unwrap(getIntent().getParcelableExtra(ArticleActivity.EXTRA_ARTICLE));
         setTitle(article.getShortHeadline());
-        loadWebView(article.getWebUrl());
+        loadWebView(ArticleHelpers.makeArticleUrlMobileFriendly(article.getWebUrl()));
     }
-
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {

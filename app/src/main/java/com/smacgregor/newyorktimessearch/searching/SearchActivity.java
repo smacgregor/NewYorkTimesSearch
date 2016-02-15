@@ -56,14 +56,12 @@ public class SearchActivity extends AppCompatActivity implements
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_search);
         ButterKnife.bind(this);
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
 
         mSearchFilter = new SearchFilter();
-
         mArticles = new ArrayList<>();
         mArticleProvider = new ArticleProvider();
 
+        setSupportActionBar((Toolbar) findViewById(R.id.toolbar));
         setupSearchResultsView();
     }
 
@@ -84,7 +82,6 @@ public class SearchActivity extends AppCompatActivity implements
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
 
-        //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
             showSearchFilterDialog();
             return true;
@@ -97,7 +94,8 @@ public class SearchActivity extends AppCompatActivity implements
     public void onFinishedSavingSearchFilter(SearchFilter searchFilter) {
         mSearchFilter = searchFilter;
         // redo the search if the filter changed
-        // add an equality check to searchFilter
+        // TODO - add an equality check to searchFilter to avoid
+        // running an unnecessary search if nothing changed
         search(mSearchQuery);
     }
 

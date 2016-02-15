@@ -12,7 +12,7 @@ import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.smacgregor.newyorktimessearch.R;
 import com.smacgregor.newyorktimessearch.core.Article;
 import com.smacgregor.newyorktimessearch.core.Thumbnail;
-import com.smacgregor.newyorktimessearch.core.ThumbnailHelpers;
+import com.smacgregor.newyorktimessearch.core.ArticleHelpers;
 import com.smacgregor.newyorktimessearch.core.ui.DynamicHeightImageView;
 
 import java.util.List;
@@ -74,25 +74,32 @@ public class ArticlesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
 
     @Override
     public int getItemViewType(int position) {
-        Thumbnail thumbnail = ThumbnailHelpers.getBestThumbnailForArticle(mArticles.get(position));
+        Thumbnail thumbnail = ArticleHelpers.getBestThumbnailForArticle(mArticles.get(position));
         return (thumbnail != null) ? ARTICLE_WITH_THUMBNAIL : ARTICLE_WITH_NO_THUMBNAIL;
     }
 
     public interface OnItemClickListener {
+        /**
+         * An item in the RecyclerView has been clicked
+         * @param view
+         * @param position
+         */
         void onItemClick(View view, int position);
     }
 
+    /**
+     * Register a callback to be notified when an item in the RecyclerView is clicked
+     * @param clickListener
+     */
     public void setOnItemClickListener(final OnItemClickListener clickListener) {
         mOnItemClickListener = clickListener;
     }
 
     private void configureThumbnailViewHolder(ThumbnailViewHolder viewHolder, int position) {
-        prepareViewForReuse(viewHolder);
-
         Article article = mArticles.get(position);
         viewHolder.headline.setText(article.getHeadline());
 
-        Thumbnail thumbnail = ThumbnailHelpers.getBestThumbnailForArticle(article);
+        Thumbnail thumbnail = ArticleHelpers.getBestThumbnailForArticle(article);
         if (thumbnail != null && !TextUtils.isEmpty(thumbnail.getUrl())) {
             viewHolder.imageThumbnail.setHeightRatio(((double) thumbnail.getHeight()) / thumbnail.getWidth());
             // Setting a disk cache policy to all isn't necessary for this simple example
@@ -109,11 +116,9 @@ public class ArticlesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
         viewHolder.headline.setText(article.getHeadline());
     }
 
-    private void prepareViewForReuse(ThumbnailViewHolder view) {
-        view.imageThumbnail.setImageResource(0);
-        view.headline.setText("");
-    }
-
+    /**
+     * ViewHolder for articles that have a thumbnail
+     */
     public class ThumbnailViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
         @Bind(R.id.image_thumbnail) DynamicHeightImageView imageThumbnail;
         @Bind(R.id.text_headline) TextView headline;
@@ -132,6 +137,9 @@ public class ArticlesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
         }
     }
 
+    /**
+     * ViewHolder for articles with no thumbnail
+     */
     public class NoThumbnailViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
         @Bind(R.id.text_headline) TextView headline;
 
