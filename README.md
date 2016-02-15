@@ -63,8 +63,12 @@ Describe any challenges encountered while building the app.
 ## Open-source libraries used
 
 - [Android Async HTTP](https://github.com/loopj/android-async-http) - Simple asynchronous HTTP requests with JSON parsing
-- [Picasso](http://square.github.io/picasso/) - Image loading and caching library for Android
+- [Glide](https://github.com/bumptech/glide) - Image loading and caching library for Android
 - [Dynamic Height Image View](https://github.com/etsy/AndroidStaggeredGrid/blob/master/library/src/main/java/com/etsy/android/grid/util/DynamicHeightImageView.java)  - Used for image resizing
+- [Parceler](https://github.com/johncarl81/parceler) - Remove boilerplate around making model objects parcelable
+- [RecyclerView Animators](https://github.com/wasabeef/recyclerview-animators) - Make RecyclerView animations easy!
+- [Gson](https://github.com/google/gson) - streamline JSON parsing into models
+- [Butterknife](http://jakewharton.github.io/butterknife/) - Remove view binding boilerplate
 
 ## License
 
