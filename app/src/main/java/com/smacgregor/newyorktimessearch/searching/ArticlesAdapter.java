@@ -8,6 +8,7 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.smacgregor.newyorktimessearch.R;
 import com.smacgregor.newyorktimessearch.core.Article;
 import com.smacgregor.newyorktimessearch.core.Thumbnail;
@@ -98,6 +99,7 @@ public class ArticlesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
             // but good practice.
             Glide.with(viewHolder.imageThumbnail.getContext()).
                     load(thumbnail.getUrl()).
+                    diskCacheStrategy(DiskCacheStrategy.ALL).
                     into(viewHolder.imageThumbnail);
         }
     }

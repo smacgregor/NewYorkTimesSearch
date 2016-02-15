@@ -3,6 +3,7 @@ package com.smacgregor.newyorktimessearch.searching;
 import android.app.DatePickerDialog;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.design.widget.Snackbar;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v7.app.AppCompatActivity;
@@ -161,11 +162,11 @@ public class SearchActivity extends AppCompatActivity implements
     }
 
     private void loadMoreSearchResults(int page) {
-        mArticleProvider.fetchMoreArticlesForSearch(mSearchQuery, mSearchFilter, page, new TextHttpResponseHandler() {
+        mArticleProvider.fetchMoreArticlesForSearch(this, mSearchQuery, mSearchFilter, page, new TextHttpResponseHandler() {
             @Override
             public void onFailure(int statusCode, Header[] headers, String responseString, Throwable throwable) {
-                // TODO - fire a toast with the warning message
                 Log.d("DEBUG", responseString);
+                displayAlertMessage(getResources().getString(R.string.alert_no_internet));
             }
 
             @Override
@@ -176,6 +177,8 @@ public class SearchActivity extends AppCompatActivity implements
                     mArticles.addAll(articleResponse.getArticles());
                     // shouldn't mArticles.size() - 1 be the size of the array of articles we added to mArticles?
                     mArticlesAdapter.notifyItemRangeInserted(mArticlesAdapter.getItemCount(), mArticles.size() - 1);
+                } else {
+                        displayAlertMessage(getResources().getString(R.string.alert_no_more_search_results));
                 }
             }
         });
@@ -186,10 +189,11 @@ public class SearchActivity extends AppCompatActivity implements
         mArticles.clear();
         mArticlesAdapter.notifyDataSetChanged();
         if (!TextUtils.isEmpty(searchQuery)) {
-            mArticleProvider.searchForArticles(searchQuery, mSearchFilter, new TextHttpResponseHandler() {
+            mArticleProvider.searchForArticles(this, searchQuery, mSearchFilter, new TextHttpResponseHandler() {
                 @Override
                 public void onFailure(int statusCode, Header[] headers, String responseString, Throwable throwable) {
                     Log.d("DEBUG", responseString);
+                    displayAlertMessage(getResources().getString(R.string.alert_no_internet));
                 }
 
                 @Override
@@ -199,9 +203,20 @@ public class SearchActivity extends AppCompatActivity implements
                     if (articleResponse != null && articleResponse.getArticles().size() > 0) {
                         mArticles.addAll(articleResponse.getArticles());
                         mArticlesAdapter.notifyItemRangeInserted(0, mArticles.size() - 1);
+                    } else {
+                        displayAlertMessage(getResources().getString(R.string.alert_no_search_results));
                     }
                 }
             });
         }
+    }
+
+    /**
+     * Alert the user that their internet connection may be down /
+     * the server returned an error
+     */
+    private void displayAlertMessage(final String alertMessage) {
+        Snackbar.make(findViewById(android.R.id.content), alertMessage,
+                Snackbar.LENGTH_LONG).show();
     }
 }
