@@ -172,7 +172,7 @@ public class SearchActivity extends AppCompatActivity implements
             public void onSuccess(int statusCode, Header[] headers, String responseString) {
                 Log.d("DEBUG", responseString);
                 ArticlesResponse articleResponse = ArticlesResponse.parseJSON(responseString);
-                if (articleResponse != null) {
+                if (articleResponse != null && articleResponse.getArticles().size() > 0) {
                     mArticles.addAll(articleResponse.getArticles());
                     // shouldn't mArticles.size() - 1 be the size of the array of articles we added to mArticles?
                     mArticlesAdapter.notifyItemRangeInserted(mArticlesAdapter.getItemCount(), mArticles.size() - 1);
@@ -183,9 +183,8 @@ public class SearchActivity extends AppCompatActivity implements
 
     private void search(final String searchQuery) {
         // TODO - add a progress spinner
-        int size = mArticles.size();
         mArticles.clear();
-        mArticlesAdapter.notifyItemRangeRemoved(0, size - 1);
+        mArticlesAdapter.notifyDataSetChanged();
         if (!TextUtils.isEmpty(searchQuery)) {
             mArticleProvider.searchForArticles(searchQuery, mSearchFilter, new TextHttpResponseHandler() {
                 @Override
@@ -197,7 +196,7 @@ public class SearchActivity extends AppCompatActivity implements
                 public void onSuccess(int statusCode, Header[] headers, String responseString) {
                     Log.d("DEBUG", responseString);
                     ArticlesResponse articleResponse = ArticlesResponse.parseJSON(responseString);
-                    if (articleResponse != null) {
+                    if (articleResponse != null && articleResponse.getArticles().size() > 0) {
                         mArticles.addAll(articleResponse.getArticles());
                         mArticlesAdapter.notifyItemRangeInserted(0, mArticles.size() - 1);
                     }
