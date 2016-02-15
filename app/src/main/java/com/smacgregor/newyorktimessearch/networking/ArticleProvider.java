@@ -1,5 +1,8 @@
 package com.smacgregor.newyorktimessearch.networking;
 
+import android.content.Context;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.text.TextUtils;
 
 import com.loopj.android.http.AsyncHttpClient;
@@ -7,6 +10,7 @@ import com.loopj.android.http.RequestParams;
 import com.loopj.android.http.TextHttpResponseHandler;
 import com.smacgregor.newyorktimessearch.searching.SearchFilter;
 
+import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 
@@ -31,8 +35,12 @@ public class ArticleProvider {
      * @param pageNumber
      * @param handler
      */
-    public void fetchMoreArticlesForSearch(final String searchQuery, final SearchFilter searchFilter, final int pageNumber, TextHttpResponseHandler handler) {
-        getArticles(searchQuery, searchFilter, pageNumber, handler);
+    public void fetchMoreArticlesForSearch(Context context,
+                                           final String searchQuery,
+                                           final SearchFilter searchFilter,
+                                           final int pageNumber,
+                                           TextHttpResponseHandler handler) {
+        getArticles(context, searchQuery, searchFilter, pageNumber, handler);
     }
 
     /**
@@ -41,14 +49,28 @@ public class ArticleProvider {
      * @param searchFilter
      * @param handler
      */
-    public void searchForArticles(final String searchQuery, final SearchFilter searchFilter, TextHttpResponseHandler handler) {
+    public void searchForArticles(Context context,
+                                  final String searchQuery,
+                                  final SearchFilter searchFilter,
+                                  TextHttpResponseHandler handler) {
         // fetch the first page of results
-        getArticles(searchQuery, searchFilter, 0, handler);
+        getArticles(context, searchQuery, searchFilter, 0, handler);
     }
 
-    private void getArticles(final String searchQuery, final SearchFilter searchFilter, final int pageNumber, TextHttpResponseHandler handler) {
-        RequestParams params = buildRequestParams(searchQuery, searchFilter, pageNumber);
-        httpClient.get(SEARCH_URL, params, handler);
+    private void getArticles(Context context,
+                             final String searchQuery,
+                             final SearchFilter searchFilter,
+                             final int pageNumber,
+                             TextHttpResponseHandler handler) {
+
+        if (isOnline() && isNetworkAvailable(context)) {
+            RequestParams params = buildRequestParams(searchQuery, searchFilter, pageNumber);
+            httpClient.get(SEARCH_URL, params, handler);
+        } else {
+            // TODO - mock up appropriate error response data for the failed request
+            // we aren't online. If I had more time I'd make up values for this
+            handler.onFailure(0, null, "", null);
+        }
     }
 
     private RequestParams buildRequestParams(final String searchQuery, final SearchFilter searchFilter, int pageNumber) {
@@ -105,4 +127,26 @@ public class ArticleProvider {
         }
         return desks;
     }
+
+    /**
+     * Report on the availablity of a network connection
+     * @return
+     */
+    private boolean isNetworkAvailable(Context context) {
+        ConnectivityManager connectivityManager = (ConnectivityManager)context.getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
+        return activeNetworkInfo != null && activeNetworkInfo.isConnectedOrConnecting();
+    }
+
+    private boolean isOnline() {
+        Runtime runtime = Runtime.getRuntime();
+        try {
+            Process ipProcess = runtime.exec("/system/bin/ping -c 1 8.8.8.8");
+            int     exitValue = ipProcess.waitFor();
+            return (exitValue == 0);
+        } catch (IOException e)          { e.printStackTrace(); }
+        catch (InterruptedException e) { e.printStackTrace(); }
+        return false;
+    }
+
 }
