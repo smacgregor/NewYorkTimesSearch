@@ -118,7 +118,7 @@ public class ArticleProvider {
         String desks = new String();
         for (SearchFilter.NewsDesks newsDesk : SearchFilter.NewsDesks.values()) {
             if (searchFilter.isNewsDeskEnabled(newsDesk)) {
-                desks += newsDesk.toString() + " ";
+                desks += "\"" + newsDesk.toString() + "\" ";
             }
         }
 

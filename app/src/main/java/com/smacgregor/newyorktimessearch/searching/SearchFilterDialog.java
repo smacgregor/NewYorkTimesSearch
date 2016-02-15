@@ -164,8 +164,7 @@ public class SearchFilterDialog extends DialogFragment implements Spinner.OnItem
 
     @OnClick(R.id.button_save_search_filter)
     public void onSaveSearchFilter() {
-        // return input to the activity
-        // fortunately our model has already been updated
+        // return the updated search filter
         mListener.onFinishedSavingSearchFilter(mSearchFilter);
         dismiss();
     }
@@ -178,6 +177,7 @@ public class SearchFilterDialog extends DialogFragment implements Spinner.OnItem
      * Set the checked property for our news desks to the correct values
      */
     private void updateNewsDesks() {
+        // TODO - data drive this instead of programatically updating each checkbox
         mArtsCheckbox.setChecked(mSearchFilter.isNewsDeskEnabled(SearchFilter.NewsDesks.ARTS));
         mFashion.setChecked(mSearchFilter.isNewsDeskEnabled(SearchFilter.NewsDesks.FASHION_AND_STYLE));
         mSports.setChecked(mSearchFilter.isNewsDeskEnabled(SearchFilter.NewsDesks.SPORTS));
@@ -192,6 +192,10 @@ public class SearchFilterDialog extends DialogFragment implements Spinner.OnItem
     }
 
     public interface OnSearchFilterFragmentInteractionListener {
+        /**
+         * The search filter has been updated
+         * @param searchFilter
+         */
         void onFinishedSavingSearchFilter(SearchFilter searchFilter);
     }
 }

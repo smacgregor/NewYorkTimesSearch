@@ -1,12 +1,15 @@
 package com.smacgregor.newyorktimessearch.core;
 
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
+
+import cz.msebera.android.httpclient.client.utils.URIBuilder;
 
 /**
  * Created by smacgregor on 2/14/16.
  */
-public class ThumbnailHelpers {
+public class ArticleHelpers {
     /**
      * Filter out thumbnails that are too small to look good on mobile.
      * Ensure an article is always mapped to the same thumbnail image
@@ -39,5 +42,23 @@ public class ThumbnailHelpers {
             thumbnail =  reducedThumbnails.get((hashCode % listSize + listSize) % listSize);
         }
         return thumbnail;
+    }
+
+    /**
+     * The NY Times API returns a non mobile friendly article url. Convert it
+     * to a mobile friendly one.
+     *
+     * @param webUrl
+     * @return
+     */
+    public static final String makeArticleUrlMobileFriendly(final String webUrl) {
+        // The NY Times API returns non mobile article urls.
+        String sanitizedUrl = webUrl;
+        try {
+            URIBuilder builder = new URIBuilder(sanitizedUrl);
+            builder.setHost("mobile.nytimes.com");
+            sanitizedUrl = builder.toString();
+        } catch (URISyntaxException ex) {}
+        return sanitizedUrl;
     }
 }

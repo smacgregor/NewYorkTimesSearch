@@ -4,7 +4,7 @@
     android:layout_height="match_parent"
     android:orientation="vertical"
     android:layout_gravity="center"
-    android:padding="60dp"
+    android:padding="@dimen/modal_overlay_padding"
     tools:context="com.smacgregor.newyorktimessearch.searching.SearchFilterDialog"
     android:weightSum="1">
 

@@ -4,10 +4,7 @@ import com.google.gson.annotations.SerializedName;
 
 import org.parceler.Parcel;
 
-import java.net.URISyntaxException;
 import java.util.List;
-
-import cz.msebera.android.httpclient.client.utils.URIBuilder;
 
 /**
  * Created by smacgregor on 2/9/16.
@@ -25,14 +22,7 @@ public class Article {
     String shortSummary;
 
     public String getWebUrl() {
-        // The NY Times API returns non mobile article urls.
-        String sanitizedUrl = webUrl;
-        try {
-            URIBuilder builder = new URIBuilder(sanitizedUrl);
-            builder.setHost("mobile.nytimes.com");
-            sanitizedUrl = builder.toString();
-        } catch (URISyntaxException ex) {}
-        return sanitizedUrl;
+        return webUrl;
     }
 
     public String getHeadline() {
