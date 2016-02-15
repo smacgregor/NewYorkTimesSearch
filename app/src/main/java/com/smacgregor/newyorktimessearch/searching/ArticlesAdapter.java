@@ -23,7 +23,10 @@ import butterknife.ButterKnife;
 /**
  * Created by smacgregor on 2/13/16.
  */
-public class ArticlesAdapter extends RecyclerView.Adapter<ArticlesAdapter.ViewHolder> {
+public class ArticlesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
+
+    private final int ARTICLE_WITH_THUMBNAIL = 0;
+    private final int ARTICLE_WITH_NO_THUMBNAIL = 1;
 
     OnItemClickListener mOnItemClickListener;
     private List<Article> mArticles;
@@ -33,34 +36,46 @@ public class ArticlesAdapter extends RecyclerView.Adapter<ArticlesAdapter.ViewHo
     }
 
     @Override
-    public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+    public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         LayoutInflater inflater = LayoutInflater.from(parent.getContext());
-        View currentView = inflater.inflate(R.layout.item_article_result, parent, false);
-        return new ViewHolder(currentView);
+        View currentView; // = inflater.inflate(R.layout.item_article_result, parent, false);
+
+        RecyclerView.ViewHolder viewHolder;
+        switch (viewType) {
+            case ARTICLE_WITH_THUMBNAIL:
+                currentView = inflater.inflate(R.layout.item_article_result, parent, false);
+                viewHolder = new ThumbnailViewHolder(currentView);
+                break;
+            default:
+                currentView = inflater.inflate(R.layout.item_article_result_no_thumbnail, parent, false);
+                viewHolder = new NoThumbnailViewHolder(currentView);
+                break;
+
+        }
+        return viewHolder;
     }
 
     @Override
-    public void onBindViewHolder(ViewHolder holder, int position) {
-        prepareViewForReuse(holder);
+    public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
 
-        Article article = mArticles.get(position);
-        holder.headline.setText(article.getHeadline());
-
-        Thumbnail thumbnail = ThumbnailHelpers.getBestThumbnailForArticle(article);
-        if (thumbnail != null && !TextUtils.isEmpty(thumbnail.getUrl())) {
-            holder.imageThumbnail.setHeightRatio(((double) thumbnail.getHeight()) / thumbnail.getWidth());
-            // Setting a disk cache policy to all isn't necessary for this simple example
-            // but good practice.
-            Glide.with(holder.imageThumbnail.getContext()).
-                    load(thumbnail.getUrl()).
-                    diskCacheStrategy(DiskCacheStrategy.ALL).
-                    into(holder.imageThumbnail);
+        switch (holder.getItemViewType()) {
+            case ARTICLE_WITH_THUMBNAIL:
+                configureThumbnailViewHolder((ThumbnailViewHolder) holder, position);
+                break;
+            default:
+                configureNoThumbnailViewHolder((NoThumbnailViewHolder) holder, position);
         }
     }
 
     @Override
     public int getItemCount() {
         return mArticles.size();
+    }
+
+    @Override
+    public int getItemViewType(int position) {
+        Thumbnail thumbnail = ThumbnailHelpers.getBestThumbnailForArticle(mArticles.get(position));
+        return (thumbnail != null) ? ARTICLE_WITH_THUMBNAIL : ARTICLE_WITH_NO_THUMBNAIL;
     }
 
     public interface OnItemClickListener {
@@ -71,16 +86,56 @@ public class ArticlesAdapter extends RecyclerView.Adapter<ArticlesAdapter.ViewHo
         mOnItemClickListener = clickListener;
     }
 
-    private void prepareViewForReuse(ViewHolder view) {
+    private void configureThumbnailViewHolder(ThumbnailViewHolder viewHolder, int position) {
+        prepareViewForReuse(viewHolder);
+
+        Article article = mArticles.get(position);
+        viewHolder.headline.setText(article.getHeadline());
+
+        Thumbnail thumbnail = ThumbnailHelpers.getBestThumbnailForArticle(article);
+        if (thumbnail != null && !TextUtils.isEmpty(thumbnail.getUrl())) {
+            viewHolder.imageThumbnail.setHeightRatio(((double) thumbnail.getHeight()) / thumbnail.getWidth());
+            // Setting a disk cache policy to all isn't necessary for this simple example
+            // but good practice.
+            Glide.with(viewHolder.imageThumbnail.getContext()).
+                    load(thumbnail.getUrl()).
+                    diskCacheStrategy(DiskCacheStrategy.ALL).
+                    into(viewHolder.imageThumbnail);
+        }
+    }
+
+    private void configureNoThumbnailViewHolder(NoThumbnailViewHolder viewHolder, int position) {
+        Article article = mArticles.get(position);
+        viewHolder.headline.setText(article.getHeadline());
+    }
+
+    private void prepareViewForReuse(ThumbnailViewHolder view) {
         view.imageThumbnail.setImageResource(0);
         view.headline.setText("");
     }
 
-    public class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
+    public class ThumbnailViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
         @Bind(R.id.image_thumbnail) DynamicHeightImageView imageThumbnail;
         @Bind(R.id.text_headline) TextView headline;
 
-        public ViewHolder(View itemView) {
+        public ThumbnailViewHolder(View itemView) {
+            super(itemView);
+            ButterKnife.bind(this, itemView);
+            itemView.setOnClickListener(this);
+        }
+
+        @Override
+        public void onClick(View v) {
+            if (mOnItemClickListener != null) {
+                mOnItemClickListener.onItemClick(v, getAdapterPosition());
+            }
+        }
+    }
+
+    public class NoThumbnailViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
+        @Bind(R.id.text_headline) TextView headline;
+
+        public NoThumbnailViewHolder(View itemView) {
             super(itemView);
             ButterKnife.bind(this, itemView);
             itemView.setOnClickListener(this);
