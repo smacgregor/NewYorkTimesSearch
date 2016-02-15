@@ -39,6 +39,7 @@ The following **bonus** features are implemented:
 The following **additional** features are implemented:
 
 * [X] Render mobile friendly web urls for articles 
+* [X] When seelcting a thumbnail to use for the staggered view, filter out small thumbnail images as they don't render well on mobile≥
 * [X] Search by relevancy to the search query as an additional sort order
 * [X] Add an additional News Desk for Foreign
 * [X] Add recycler view adapter animation using https://github.com/wasabeef/recyclerview-animators (animation from the bottom)
